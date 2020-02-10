@@ -1,58 +1,140 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+    <a-table
+        :columns="columns"
+        :dataSource="data"
+        :pagination="pagination"
+        :rowKey="rowKey"
+        size="small"
+    ></a-table>
 </template>
 
 <script>
+import axios from "axios";
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+    name: "HelloWorld",
+    props: {
+        msg: String
+    },
+    data() {
+        return {
+            data: [],
+            newData: [],
+            columns: [
+                {
+                    title: "光缆名称",
+                    dataIndex: "opticalCableName",
+                    scopedSlots: {
+                        customRender: "opticalCableName"
+                    }
+                },
+                {
+                    title: "始端局站名称",
+                    dataIndex: "siteName"
+                },
+                {
+                    title: "地市",
+                    dataIndex: "disMarket"
+                },
+                {
+                    title: "区县",
+                    dataIndex: "county"
+                },
+                {
+                    title: "资源总量",
+                    dataIndex: "CensusNum"
+                },
+                {
+                    title: "已普查量",
+                    dataIndex: "CensusEdNum"
+                },
+                {
+                    title: "提交时间",
+                    dataIndex: "reportDate"
+                },
+                {
+                    title: "普查状态",
+                    dataIndex: "status"
+                },
+                {
+                    title: "审核状态",
+                    dataIndex: "zgStatus"
+                },
+                {
+                    title: "同步次数",
+                    dataIndex: "synSum",
+                    scopedSlots: {
+                        customRender: "synSum"
+                    }
+                },
+                {
+                    title: "留言日志",
+                    dataIndex: "x",
+                    fixed: "right",
+                    width: 50,
+                    scopedSlots: {
+                        customRender: "message"
+                    }
+                },
+                {
+                    title: "操作",
+                    dataIndex: "y",
+                    fixed: "right",
+                    width: 80,
+                    scopedSlots: {
+                        customRender: "action"
+                    }
+                }
+            ],
+            pageSize: 5,
+            currentPage: 1,
+            pagination: {
+                total: 0,
+                current: 1,
+                pageSize: 5,
+                pageSizeOptions: ["5", "10", "15", "20"],
+                showTotal: () => `共 ${this.pagination.total} 条数据`,
+                showSizeChanger: true,
+                onChange: page => {
+                    this.currentPage = page;
+                    this.pagination.current = this.currentPage;
+                    this.query();
+                },
+                onShowSizeChange: (current, pageSize) => {
+                    console.log(current);
+                    this.pageSize = pageSize;
+                    this.pagination.pageSize = pageSize;
+                    this.query();
+                }
+            },
+            rowKey: record => record.ROW_ID
+        };
+    },
+    mounted() {
+        axios.get("http://192.168.7.140:8081/json/newData.json").then(x => {
+            this.newData = x.data.list;
+            this.query();
+        });
+    },
+    methods: {
+        query() {
+            this.pagination.total = this.newData.length;
+            // console.log(this.pagination.total);
+            // console.log(this.pageSize);
+            // console.log(this.pagination.total / this.pageSize);
+            // console.log(
+            //     this._.chunk(
+            //         this.newData,
+            //         Math.ceil(this.pagination.total / this.pageSize)+1
+            //     )
+            // );
+            this.data = this._.chunk(this.newData, this.pageSize)[
+                this.currentPage - 1
+            ];
+        }
+    }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
 </style>
