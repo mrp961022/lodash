@@ -70,7 +70,7 @@ export default {
                     title: "留言日志",
                     dataIndex: "x",
                     fixed: "right",
-                    width: 50,
+                    width: 150,
                     scopedSlots: {
                         customRender: "message"
                     }
@@ -101,6 +101,7 @@ export default {
                 },
                 onShowSizeChange: (current, pageSize) => {
                     console.log(current);
+                    this.currentPage=current  // 监听currentpage，防止在切换分页（少==>多）时查询有问题
                     this.pageSize = pageSize;
                     this.pagination.pageSize = pageSize;
                     this.query();
@@ -110,7 +111,7 @@ export default {
         };
     },
     mounted() {
-        axios.get("http://192.168.7.140:8081/json/newData.json").then(x => {
+        axios.get("http://192.168.11.70:8000/json/newData.json").then(x => {
             this.newData = x.data.list;
             this.query();
         });
