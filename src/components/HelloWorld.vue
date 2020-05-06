@@ -100,8 +100,7 @@ export default {
                     this.query();
                 },
                 onShowSizeChange: (current, pageSize) => {
-                    console.log(current);
-                    this.currentPage=current  // 监听currentpage，防止在切换分页（少==>多）时查询有问题
+                    this.currentPage = current; // 监听currentpage，防止在切换分页（少==>多）时查询有问题
                     this.pageSize = pageSize;
                     this.pagination.pageSize = pageSize;
                     this.query();
@@ -111,7 +110,7 @@ export default {
         };
     },
     mounted() {
-        axios.get("http://192.168.11.70:8000/json/newData.json").then(x => {
+        axios.get("http://localhost:8000/json/newData.json").then(x => { // 这里和访问地址对应
             this.newData = x.data.list;
             this.query();
         });
@@ -119,15 +118,7 @@ export default {
     methods: {
         query() {
             this.pagination.total = this.newData.length;
-            // console.log(this.pagination.total);
-            // console.log(this.pageSize);
-            // console.log(this.pagination.total / this.pageSize);
-            // console.log(
-            //     this._.chunk(
-            //         this.newData,
-            //         Math.ceil(this.pagination.total / this.pageSize)+1
-            //     )
-            // );
+            // chunk(a,b) 将数组拆分为a以每组b个拆分为新数组数列
             this.data = this._.chunk(this.newData, this.pageSize)[
                 this.currentPage - 1
             ];
